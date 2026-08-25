@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tính Hóa Đơn Nhanh - Máy Tính Tiền</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .calculator-card {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+        }
+        .app-label {
+            background-color: #007bff;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
+            text-align: center;
+            font-size: 22px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        input:focus, select:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        .result-box {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .result-box h3 {
+            margin: 0;
+            color: #28a745;
+            font-size: 24px;
+        }
+        .unit-display {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator-card">
+        <!-- Nhãn mới được thêm vào đây -->
+        <div style="text-align: center;">
+            <span class="app-label">Máy Tính Tiền</span>
+        </div>
+        
+        <h2>Tính Tiền Hóa Đơn</h2>
+        
+        <div class="form-group">
+            <label for="num1">Số lượng:</label>
+            <input type="number" id="num1" placeholder="Nhập số lượng..." oninput="tinhKetQua()">
+        </div>
+
+        <div class="form-group">
+            <label for="unit">Đơn vị tính:</label>
+            <select id="unit" onchange="tinhKetQua()">
+                <option value="">-- Chọn đơn vị --</option>
+                <option value="Cái">Cái</option>
+                <option value="Chiếc">Chiếc</option>
+                <option value="Kg">Kg</option>
+                <option value="Liter">Liter</option>
+                <option value="Meter">Meter</option>
+                <option value="Box">Box</option>
+                <option value="Set">Set</option>
+                <option value="Bộ">Bộ</option>
+                <option value="Cặp">Cặp</option>
+                <option value="Tá">Tá</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="num2">Đơn giá (VNĐ):</label>
+            <input type="number" id="num2" placeholder="Nhập đơn giá..." oninput="tinhKetQua()">
+        </div>
+
+        <div class="result-box">
+            <span style="color: #666; font-size: 14px;">Thành tiền:</span>
+            <h3 id="result">0 VNĐ</h3>
+            <div class="unit-display" id="unitDisplay"></div>
+        </div>
+    </div>
+
+    <script>
+        function tinhKetQua() {
+            // Lấy giá trị từ các input
+            const num1 = parseFloat(document.getElementById('num1').value);
+            const num2 = parseFloat(document.getElementById('num2').value);
+            const unit = document.getElementById('unit').value;
+            const resultElement = document.getElementById('result');
+            const unitDisplay = document.getElementById('unitDisplay');
+
+            // Kiểm tra nếu người dùng nhập số hợp lệ
+            if (!isNaN(num1) && !isNaN(num2)) {
+                const total = num1 * num2;
+                // Định dạng hiển thị số theo chuẩn tiền tệ Việt Nam (có dấu phân cách hàng nghìn)
+                resultElement.innerText = total.toLocaleString('vi-VN') + ' VNĐ';
+                
+                // Hiển thị đơn vị tính nếu được chọn
+                if (unit) {
+                    unitDisplay.innerText = `(${num1} ${unit} × ${num2.toLocaleString('vi-VN')} VNĐ/${unit})`;
+                } else {
+                    unitDisplay.innerText = '';
+                }
+            } else {
+                resultElement.innerText = '0 VNĐ';
+                unitDisplay.innerText = '';
+            }
+        }
+    </script>
+
+</body>
+</html>
