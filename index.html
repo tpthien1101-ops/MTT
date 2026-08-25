@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tính Hóa Đơn Nhanh - Máy Tính Tiền</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .calculator-card {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+        }
+        .app-label {
+            background-color: #007bff;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
+            text-align: center;
+            font-size: 22px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        input:focus, select:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        .result-box {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .result-box h3 {
+            margin: 0;
+            color: #28a745;
+            font-size: 24px;
+        }
+        .unit-display {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .currency-selector {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+        .currency-selector label {
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .currency-conversion {
+            margin-top: 12px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #555;
+        }
+        .currency-flag {
+            display: inline-block;
+            margin-right: 5px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator-card">
+        <!-- Nhãn mới được thêm vào đây -->
+        <div style="text-align: center;">
+            <span class="app-label">Máy Tính Tiền</span>
+        </div>
+        
+        <h2>Tính Tiền Hóa Đơn</h2>
+        
+        <div class="form-group">
+            <label for="num1">Số lượng:</label>
+            <input type="number" id="num1" placeholder="Nhập số lượng..." oninput="tinhKetQua()">
+        </div>
+
+        <div class="form-group">
+            <label for="unit">Đơn vị tính:</label>
+            <select id="unit" onchange="tinhKetQua()">
+                <option value="">-- Chọn đơn vị --</option>
+                <option value="Cái">Cái</option>
+                <option value="Chiếc">Chiếc</option>
+                <option value="Kg">Kg</option>
+                <option value="Liter">Liter</option>
+                <option value="Meter">Meter</option>
+                <option value="Box">Box</option>
+                <option value="Set">Set</option>
+                <option value="Bộ">Bộ</option>
+                <option value="Cặp">Cặp</option>
+                <option value="Tá">Tá</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="num2">Đơn giá (VNĐ):</label>
+            <input type="number" id="num2" placeholder="Nhập đơn giá..." oninput="tinhKetQua()">
+        </div>
+
+        <div class="result-box">
+            <span style="color: #666; font-size: 14px;">Thành tiền:</span>
+            <h3 id="result">0 VNĐ</h3>
+            <div class="unit-display" id="unitDisplay"></div>
+            
+            <div class="currency-selector">
+                <label for="currency">Chọn tiền tệ:</label>
+                <select id="currency" onchange="tinhKetQua()">
+                    <option value="VND"><span class="currency-flag">🇻🇳</span>VND - Đồng Việt Nam</option>
+                    <option value="USD"><span class="currency-flag">🇺🇸</span>USD - Đô la Mỹ</option>
+                    <option value="EUR"><span class="currency-flag">🇪🇺</span>EUR - Euro</option>
+                    <option value="JPY"><span class="currency-flag">🇯🇵</span>JPY - Yên Nhật</option>
+                </select>
+            </div>
+
+            <div class="currency-conversion" id="currencyConversion"></div>
+        </div>
+    </div>
+
+    <script>
+        // Tỷ giá hối đoái (cập nhật định kỳ)
+        const exchangeRates = {
+            'VND': { rate: 1, symbol: 'VNĐ', decimals: 0 },
+            'USD': { rate: 1 / 24500, symbol: '$', decimals: 2 },
+            'EUR': { rate: 1 / 26500, symbol: '€', decimals: 2 },
+            'JPY': { rate: 1 / 169, symbol: '¥', decimals: 0 }
+        };
+
+        function tinhKetQua() {
+            // Lấy giá trị từ các input
+            const num1 = parseFloat(document.getElementById('num1').value);
+            const num2 = parseFloat(document.getElementById('num2').value);
+            const unit = document.getElementById('unit').value;
+            const currency = document.getElementById('currency').value || 'VND';
+            const resultElement = document.getElementById('result');
+            const unitDisplay = document.getElementById('unitDisplay');
+            const currencyConversion = document.getElementById('currencyConversion');
+
+            // Kiểm tra nếu người dùng nhập số hợp lệ
+            if (!isNaN(num1) && !isNaN(num2)) {
+                const totalVND = num1 * num2;
+                const rate = exchangeRates[currency].rate;
+                const convertedValue = totalVND * rate;
+                const symbol = exchangeRates[currency].symbol;
+                const decimals = exchangeRates[currency].decimals;
+
+                // Định dạng hiển thị số theo chuẩn tiền tệ
+                if (currency === 'VND') {
+                    resultElement.innerText = convertedValue.toLocaleString('vi-VN') + ' ' + symbol;
+                } else {
+                    resultElement.innerText = symbol + convertedValue.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                }
+                
+                // Hiển thị đơn vị tính nếu được chọn
+                if (unit) {
+                    unitDisplay.innerText = `(${num1} ${unit} × ${num2.toLocaleString('vi-VN')} VNĐ/${unit})`;
+                } else {
+                    unitDisplay.innerText = '';
+                }
+
+                // Hiển thị chuyển đổi tiền tệ
+                if (currency !== 'VND') {
+                    currencyConversion.innerHTML = `
+                        <strong>Chuyển đổi tiền tệ:</strong><br>
+                        ${totalVND.toLocaleString('vi-VN')} VNĐ = ${convertedValue.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',')} ${symbol}
+                    `;
+                } else {
+                    currencyConversion.innerHTML = '';
+                }
+            } else {
+                resultElement.innerText = '0 VNĐ';
+                unitDisplay.innerText = '';
+                currencyConversion.innerHTML = '';
+            }
+        }
+    </script>
+
+</body>
+</html>
